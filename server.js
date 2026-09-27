@@ -7,7 +7,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json())
 
 app.use(express.static(path.join(__dirname, "..")));
 
@@ -23,6 +23,23 @@ const db = new sqlite3.Database(
 );
 
 db.serialize(() => {
+    db.run("ALTER TABLE orders ADD COLUMN customer_name TEXT", (err) => {
+    if (err && !err.message.includes("duplicate column name")) {
+        console.log(err.message);
+    }
+});
+
+db.run("ALTER TABLE orders ADD COLUMN customer_phone TEXT", (err) => {
+    if (err && !err.message.includes("duplicate column name")) {
+        console.log(err.message);
+    }
+});
+
+db.run("ALTER TABLE orders ADD COLUMN customer_address TEXT", (err) => {
+    if (err && !err.message.includes("duplicate column name")) {
+        console.log(err.message);
+    }
+});
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
@@ -46,6 +63,9 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
             total REAL NOT NULL,
+            customer_name TEXT,
+            customer_phone TEXT,
+            customer_address TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -151,17 +171,37 @@ app.post("/api/login", (req, res) => {
 
 app.post("/api/orders", (req, res) => {
 
-    const { username, total } = req.body;
+    const {
+    username,
+    total,
+    customerName,
+    customerPhone,
+    customerAddress
+} = req.body;
 
-    if (!username || total === undefined) {
+    if (
+    !username ||
+    total === undefined ||
+    !customerName ||
+    !customerPhone ||
+    !customerAddress
+) {
         return res.status(400).json({
-            message: "Username and total are required"
+            message: "All order details are required"
         });
     }
 
     db.run(
-        "INSERT INTO orders (username, total) VALUES (?, ?)",
-        [username, total],
+    `INSERT INTO orders
+    (username, total, customer_name, customer_phone, customer_address)
+    VALUES (?, ?, ?, ?, ?)`,
+    [
+        username,
+        total,
+        customerName,
+        customerPhone,
+        customerAddress
+    ],
         function (err) {
 
             if (err) {
