@@ -1,6 +1,7 @@
 let cart = [];
 
 function addToCart(productName, price) {
+
     let existingProduct = cart.find(function(item) {
         return item.name === productName;
     });
@@ -18,7 +19,9 @@ function addToCart(productName, price) {
     updateCart();
 }
 
+
 function updateCart() {
+
     let cartItems = document.getElementById("cart-items");
     let cartTotal = document.getElementById("cart-total");
 
@@ -27,9 +30,13 @@ function updateCart() {
     let total = 0;
 
     if (cart.length === 0) {
+
         cartItems.innerHTML = "<p>Your cart is empty.</p>";
+
     } else {
+
         cart.forEach(function(item) {
+
             let itemElement = document.createElement("p");
 
             itemElement.textContent =
@@ -44,7 +51,9 @@ function updateCart() {
     cartTotal.textContent = total;
 }
 
+
 function showDetails(productName, price) {
+
     alert(
         "Product Details\n\n" +
         "Product: " + productName +
@@ -53,21 +62,28 @@ function showDetails(productName, price) {
     );
 }
 
+
 async function login() {
+
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
 
     if (username === "" || password === "") {
+
         alert("Please enter username and password");
         return;
     }
 
     try {
+
         let response = await fetch("http://localhost:3000/api/login", {
+
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
                 username: username,
                 password: password
@@ -79,79 +95,161 @@ async function login() {
         alert(data.message);
 
     } catch (error) {
+
         alert("Server connection failed");
+
     }
 }
+
+
 async function registerUser() {
-    let username = document.getElementById("register-username").value;
-    let password = document.getElementById("register-password").value;
+
+    let username =
+        document.getElementById("register-username").value;
+
+    let password =
+        document.getElementById("register-password").value;
 
     if (username === "" || password === "") {
+
         alert("Please enter username and password");
         return;
     }
 
     try {
-        let response = await fetch("http://localhost:3000/api/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
+
+        let response = await fetch(
+            "http://localhost:3000/api/register",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            }
+        );
 
         let data = await response.json();
 
         alert(data.message);
 
     } catch (error) {
+
         alert("Server connection failed");
+
     }
 }
+
+
 async function placeOrder() {
 
     if (cart.length === 0) {
+
         alert("Your cart is empty");
         return;
     }
 
-    let username = document.getElementById("username").value;
+    let username =
+        document.getElementById("username").value.trim();
+
+    let customerName =
+        document.getElementById("customer-name").value.trim();
+
+    let customerPhone =
+        document.getElementById("customer-phone").value.trim();
+
+    let customerAddress =
+        document.getElementById("customer-address").value.trim();
+
 
     if (username === "") {
+
         alert("Please login before placing an order");
         return;
     }
 
+
+    if (customerName === "") {
+
+        alert("Please enter your name");
+        return;
+    }
+
+
+    if (customerPhone === "") {
+
+        alert("Please enter your phone number");
+        return;
+    }
+
+
+    if (customerAddress === "") {
+
+        alert("Please enter your delivery address");
+        return;
+    }
+
+
     let total = 0;
 
     cart.forEach(function(item) {
+
         total += item.price;
+
     });
+
 
     try {
 
-        let response = await fetch("http://localhost:3000/api/orders", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: username,
-                total: total
-            })
-        });
+        let response = await fetch(
+            "http://localhost:3000/api/orders",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    username: username,
+
+                    customerName: customerName,
+
+                    customerPhone: customerPhone,
+
+                    customerAddress: customerAddress,
+
+                    total: total
+
+                })
+            }
+        );
+
 
         let data = await response.json();
 
         alert(data.message);
 
+
         if (response.ok) {
+
             cart = [];
+
             updateCart();
+
+            document.getElementById("customer-name").value = "";
+
+            document.getElementById("customer-phone").value = "";
+
+            document.getElementById("customer-address").value = "";
         }
+
 
     } catch (error) {
 
@@ -159,18 +257,32 @@ async function placeOrder() {
 
     }
 }
-function searchProducts() {
-    let searchText = document.getElementById("search").value.toLowerCase();
 
-    let products = document.querySelectorAll(".product");
+
+function searchProducts() {
+
+    let searchText =
+        document.getElementById("search").value.toLowerCase();
+
+    let products =
+        document.querySelectorAll(".product");
+
 
     products.forEach(function(product) {
-        let productName = product.querySelector("h3").textContent.toLowerCase();
+
+        let productName =
+            product.querySelector("h3").textContent.toLowerCase();
+
 
         if (productName.includes(searchText)) {
+
             product.style.display = "block";
+
         } else {
+
             product.style.display = "none";
+
         }
+
     });
 }
